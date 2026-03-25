@@ -1,4 +1,5 @@
-# Secrets - ΠΟΤΕ στο GitHub!
+# Secrets 
+.claude
 .env
 *.env
 terraform.tfvars
