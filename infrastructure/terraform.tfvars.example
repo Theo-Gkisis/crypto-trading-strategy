@@ -1,0 +1,24 @@
+# Αντέγραψε αυτό το αρχείο σε terraform.tfvars και συμπλήρωσε τις τιμές
+# cp terraform.tfvars.example terraform.tfvars
+
+# AWS
+aws_region          = "eu-central-1"
+instance_type       = "t2.micro"
+s3_bucket_name      = "trading-bot-backup-ΑΛΛΑΞΕ-ΜΕ"
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+
+# Trading Config
+trading_mode  = "testnet"
+total_capital = 100
+
+# Binance Live Keys
+binance_api_key    = "το_live_api_key_σου"
+binance_api_secret = "το_live_secret_σου"
+
+# Binance Testnet Keys
+binance_api_key_testnet    = "το_testnet_api_key_σου"
+binance_api_secret_testnet = "το_testnet_secret_σου"
+
+# Telegram
+telegram_bot_token = "το_bot_token_σου"
+telegram_chat_id   = "το_chat_id_σου"
