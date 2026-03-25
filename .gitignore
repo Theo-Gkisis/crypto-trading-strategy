@@ -1,4 +1,4 @@
-# Secrets 
+# Secrets - ΠΟΤΕ στο GitHub!
 .claude
 .env
 *.env
@@ -12,12 +12,12 @@ venv/
 .venv/
 
 # Database
-database/*.db
-database/*.db-shm
-database/*.db-wal
+bot/database/*.db
+bot/database/*.db-shm
+bot/database/*.db-wal
 
 # Logs
-logs/
+bot/logs/
 *.log
 
 # Terraform

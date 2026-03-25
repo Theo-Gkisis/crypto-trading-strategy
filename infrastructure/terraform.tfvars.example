@@ -1,6 +1,10 @@
 # Αντέγραψε αυτό το αρχείο σε terraform.tfvars και συμπλήρωσε τις τιμές
 # cp terraform.tfvars.example terraform.tfvars
 
+# GitHub
+github_username = "το_github_username_σου"
+github_repo     = "AI-TRADING-BOT"
+
 # AWS
 aws_region          = "eu-central-1"
 instance_type       = "t2.micro"

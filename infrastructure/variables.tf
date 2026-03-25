@@ -1,3 +1,14 @@
+variable "github_username" {
+  description = "GitHub username"
+  type        = string
+}
+
+variable "github_repo" {
+  description = "GitHub repository name"
+  type        = string
+  default     = "AI-TRADING-BOT"
+}
+
 variable "aws_region" {
   description = "AWS region"
   type        = string

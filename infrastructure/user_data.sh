@@ -1,110 +1,61 @@
 #!/bin/bash
 set -e
 
-# ----------------------------------------------------------
-# TRADING BOT - EC2 User Data Script
-# Τρέχει αυτόματα όταν ξεκινά το EC2 instance
-# ----------------------------------------------------------
-
-echo "=== Trading Bot Setup Starting ==="
+echo "=== Trading Bot Docker Setup ==="
 
 # Update system
 apt-get update -y
 apt-get upgrade -y
-apt-get install -y python3 python3-pip python3-venv git curl unzip
 
-# Install AWS CLI
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-./install
-rm -rf awscliv2.zip aws
+# Install Docker
+curl -fsSL https://get.docker.com | sh
+usermod -aG docker ubuntu
 
-# Create bot user
-useradd -m -s /bin/bash botuser || true
+# Install Docker Compose
+apt-get install -y docker-compose-plugin
 
 # Create project directory
-mkdir -p /home/botuser/AI-TRADING-BOT
-chown botuser:botuser /home/botuser/AI-TRADING-BOT
+mkdir -p /home/ubuntu/AI-TRADING-BOT
+cd /home/ubuntu/AI-TRADING-BOT
 
-# ----------------------------------------------------------
-# ΚΑΤΕΒΑΣΜΑ ΚΩΔΙΚΑ ΑΠΟ S3
-# (θα ανεβάσουμε τον κώδικα στο S3 μετά)
-# ----------------------------------------------------------
-aws s3 cp s3://${s3_bucket}/code/trading-bot.zip /tmp/trading-bot.zip --region ${aws_region} || true
-
-if [ -f /tmp/trading-bot.zip ]; then
-    unzip -o /tmp/trading-bot.zip -d /home/botuser/AI-TRADING-BOT
-    chown -R botuser:botuser /home/botuser/AI-TRADING-BOT
-fi
-
-# ----------------------------------------------------------
-# PYTHON VIRTUAL ENVIRONMENT
-# ----------------------------------------------------------
-cd /home/botuser/AI-TRADING-BOT
-python3 -m venv venv
-source venv/bin/activate
-pip install --upgrade pip
-
-if [ -f requirements.txt ]; then
-    pip install -r requirements.txt
-fi
-
-# ----------------------------------------------------------
-# ENVIRONMENT VARIABLES (.env file)
-# ----------------------------------------------------------
-cat > /home/botuser/AI-TRADING-BOT/.env << 'ENVFILE'
-# Binance Live
+# Create .env file
+cat > .env << 'ENVFILE'
 BINANCE_API_KEY=${binance_api_key}
 BINANCE_API_SECRET=${binance_api_secret}
-
-# Binance Testnet
 BINANCE_API_KEY_TESTNET=${binance_api_key_test}
 BINANCE_API_SECRET_TESTNET=${binance_api_secret_test}
-
-# Telegram
 TELEGRAM_BOT_TOKEN=${telegram_token}
 TELEGRAM_CHAT_ID=${telegram_chat_id}
-
-# AWS S3
 AWS_S3_BUCKET=${s3_bucket}
 AWS_REGION=${aws_region}
-
-# Trading Config
 TRADING_MODE=${trading_mode}
 TOTAL_CAPITAL=${total_capital}
 ENVFILE
 
-chown botuser:botuser /home/botuser/AI-TRADING-BOT/.env
-chmod 600 /home/botuser/AI-TRADING-BOT/.env
+chmod 600 .env
 
-# ----------------------------------------------------------
-# SYSTEMD SERVICE (auto-start + auto-restart)
-# ----------------------------------------------------------
-cat > /etc/systemd/system/trading-bot.service << 'SERVICEFILE'
-[Unit]
-Description=AI Trading Bot
-After=network.target
-Wants=network-online.target
+# Create docker-compose.yml
+cat > docker-compose.yml << 'COMPOSEFILE'
+services:
+  trading-bot:
+    image: ghcr.io/${github_username}/${github_repo}:latest
+    container_name: trading-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./database:/app/database
+      - ./logs:/app/logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+COMPOSEFILE
 
-[Service]
-Type=simple
-User=botuser
-WorkingDirectory=/home/botuser/AI-TRADING-BOT
-ExecStart=/home/botuser/AI-TRADING-BOT/venv/bin/python -X utf8 main.py
-Restart=always
-RestartSec=30
-StandardOutput=journal
-StandardError=journal
-Environment=PYTHONUNBUFFERED=1
+# Pull & Start bot
+docker compose pull
+docker compose up -d
 
-[Install]
-WantedBy=multi-user.target
-SERVICEFILE
-
-# Enable και start service
-systemctl daemon-reload
-systemctl enable trading-bot
-systemctl start trading-bot
-
-echo "=== Trading Bot Setup Complete ==="
-echo "Status: $(systemctl is-active trading-bot)"
+echo "=== Setup Complete ==="
+docker compose ps
