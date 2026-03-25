@@ -1,0 +1,30 @@
+# Exchange connectivity
+ccxt>=4.3.85
+
+# Data processing
+pandas>=2.2.2
+numpy>=1.26.4
+
+# Technical indicators
+ta>=0.11.0
+
+# Database
+SQLAlchemy>=2.0.30
+
+# Telegram notifications
+python-telegram-bot>=21.3
+
+# Environment variables
+python-dotenv>=1.0.1
+
+# Async support
+aiohttp>=3.9.5
+
+# Scheduling
+schedule>=1.2.2
+
+# Logging
+colorlog>=6.8.2
+
+# AWS S3 backup
+boto3>=1.34.0
