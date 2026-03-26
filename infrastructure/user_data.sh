@@ -4,19 +4,23 @@ set -e
 echo "=== Trading Bot Docker Setup ==="
 
 # Update system
-apt-get update -y
-apt-get upgrade -y
+dnf update -y
 
 # Install Docker
-curl -fsSL https://get.docker.com | sh
-usermod -aG docker ubuntu
+dnf install -y docker
+systemctl enable docker
+systemctl start docker
+usermod -aG docker ec2-user
 
-# Install Docker Compose
-apt-get install -y docker-compose-plugin
+# Install Docker Compose plugin
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
+  -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
 # Create project directory
-mkdir -p /home/ubuntu/AI-TRADING-BOT
-cd /home/ubuntu/AI-TRADING-BOT
+mkdir -p /home/ec2-user/AI-TRADING-BOT
+cd /home/ec2-user/AI-TRADING-BOT
 
 # Create .env file
 cat > .env << 'ENVFILE'
@@ -38,13 +42,13 @@ chmod 600 .env
 cat > docker-compose.yml << 'COMPOSEFILE'
 services:
   trading-bot:
-    image: ghcr.io/${github_username}/${github_repo}:latest
+    image: ${github_username}/${github_repo}:latest
     container_name: trading-bot
     restart: unless-stopped
     env_file:
       - .env
     volumes:
-      - ./database:/app/database
+      - ./data:/app/data
       - ./logs:/app/logs
     logging:
       driver: "json-file"

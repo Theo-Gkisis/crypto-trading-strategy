@@ -10,7 +10,7 @@ output "public_ip" {
 
 output "ssh_command" {
   description = "Εντολή για σύνδεση SSH"
-  value       = "ssh -i ~/.ssh/id_rsa ubuntu@${aws_eip.trading_bot.public_ip}"
+  value       = "ssh -i ~/.ssh/id_rsa ec2-user@${aws_eip.trading_bot.public_ip}"
 }
 
 output "s3_bucket" {
@@ -20,10 +20,10 @@ output "s3_bucket" {
 
 output "bot_status_command" {
   description = "Εντολή για να δεις αν τρέχει ο bot"
-  value       = "ssh -i ~/.ssh/id_rsa ubuntu@${aws_eip.trading_bot.public_ip} 'sudo systemctl status trading-bot'"
+  value       = "ssh -i ~/.ssh/id_rsa ec2-user@${aws_eip.trading_bot.public_ip} 'sudo systemctl status trading-bot'"
 }
 
 output "bot_logs_command" {
   description = "Εντολή για να δεις τα logs"
-  value       = "ssh -i ~/.ssh/id_rsa ubuntu@${aws_eip.trading_bot.public_ip} 'sudo journalctl -u trading-bot -f'"
+  value       = "ssh -i ~/.ssh/id_rsa ec2-user@${aws_eip.trading_bot.public_ip} 'sudo journalctl -u trading-bot -f'"
 }

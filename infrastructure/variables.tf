@@ -12,13 +12,13 @@ variable "github_repo" {
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "eu-central-1"
+  default     = "eu-west-1"
 }
 
 variable "instance_type" {
-  description = "EC2 instance type (t2.micro = free tier)"
+  description = "EC2 instance type (t3.micro = free tier)"
   type        = string
-  default     = "t2.micro"
+  default     = "t3.micro"
 }
 
 variable "s3_bucket_name" {

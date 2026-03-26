@@ -16,13 +16,18 @@ provider "aws" {
 # DATA SOURCES
 # ----------------------------------------------------------
 
-data "aws_ami" "ubuntu" {
+
+# ----------------------------------------------------------
+# DATA SOURCES
+# ----------------------------------------------------------
+
+data "aws_ami" "amazon_linux" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical
+  owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-22.04-amd64-server-*"]
+    values = ["al2023-ami-2023.*-x86_64"]
   }
 
   filter {
@@ -154,6 +159,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "backups" {
     id     = "delete-old-backups"
     status = "Enabled"
 
+    filter {
+      prefix = "backups/"
+    }
+
     expiration {
       days = 30
     }
@@ -174,7 +183,7 @@ resource "aws_s3_bucket_public_access_block" "backups" {
 
 resource "aws_key_pair" "trading_bot" {
   key_name   = "trading-bot-key"
-  public_key = file(var.ssh_public_key_path)
+  public_key = file(pathexpand(var.ssh_public_key_path))
 
   tags = {
     Name    = "trading-bot-key"
@@ -183,23 +192,25 @@ resource "aws_key_pair" "trading_bot" {
 }
 
 resource "aws_instance" "trading_bot" {
-  ami                    = data.aws_ami.ubuntu.id
+  ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
   key_name               = aws_key_pair.trading_bot.key_name
   vpc_security_group_ids = [aws_security_group.trading_bot.id]
   iam_instance_profile   = aws_iam_instance_profile.trading_bot.name
 
   user_data = templatefile("${path.module}/user_data.sh", {
-    binance_api_key        = var.binance_api_key
-    binance_api_secret     = var.binance_api_secret
-    binance_api_key_test   = var.binance_api_key_testnet
+    binance_api_key         = var.binance_api_key
+    binance_api_secret      = var.binance_api_secret
+    binance_api_key_test    = var.binance_api_key_testnet
     binance_api_secret_test = var.binance_api_secret_testnet
-    telegram_token         = var.telegram_bot_token
-    telegram_chat_id       = var.telegram_chat_id
-    s3_bucket              = var.s3_bucket_name
-    aws_region             = var.aws_region
-    trading_mode           = var.trading_mode
-    total_capital          = var.total_capital
+    telegram_token          = var.telegram_bot_token
+    telegram_chat_id        = var.telegram_chat_id
+    s3_bucket               = var.s3_bucket_name
+    aws_region              = var.aws_region
+    trading_mode            = var.trading_mode
+    total_capital           = var.total_capital
+    github_username         = lower(var.github_username)
+    github_repo             = lower(var.github_repo)
   })
 
   root_block_device {
