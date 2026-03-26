@@ -16,9 +16,9 @@ variable "aws_region" {
 }
 
 variable "instance_type" {
-  description = "EC2 instance type (t3.micro = free tier)"
+  description = "EC2 instance type"
   type        = string
-  default     = "t3.micro"
+  default     = "t2.micro"
 }
 
 variable "s3_bucket_name" {
