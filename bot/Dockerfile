@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create logs & database directories
-RUN mkdir -p logs database
+RUN mkdir -p logs data
 
 # Run bot
 CMD ["python", "-X", "utf8", "main.py"]

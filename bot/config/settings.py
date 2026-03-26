@@ -67,7 +67,7 @@ TELEGRAM_CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID", "")
 # ============================================================
 # DATABASE
 # ============================================================
-DATABASE_URL = "sqlite:///database/trading_bot.db"
+DATABASE_URL = "sqlite:///data/trading_bot.db"
 
 # ============================================================
 # LOGGING

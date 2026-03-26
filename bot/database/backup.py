@@ -13,29 +13,23 @@ from dotenv import load_dotenv
 load_dotenv()
 logger = logging.getLogger(__name__)
 
-DB_PATH      = "database/trading_bot.db"
-AWS_KEY      = os.getenv("AWS_ACCESS_KEY", "")
-AWS_SECRET   = os.getenv("AWS_SECRET_KEY", "")
+DB_PATH      = "data/trading_bot.db"
 AWS_BUCKET   = os.getenv("AWS_S3_BUCKET", "")
-AWS_REGION   = os.getenv("AWS_REGION", "eu-central-1")
+AWS_REGION   = os.getenv("AWS_REGION", "eu-west-1")
 KEEP_DAYS    = 7  # Κρατάει backups για 7 μέρες
 
 
 class S3Backup:
 
     def __init__(self):
-        self.enabled = all([AWS_KEY, AWS_SECRET, AWS_BUCKET])
+        self.enabled = bool(AWS_BUCKET)
 
         if self.enabled:
-            self.client = boto3.client(
-                "s3",
-                aws_access_key_id     = AWS_KEY,
-                aws_secret_access_key = AWS_SECRET,
-                region_name           = AWS_REGION,
-            )
+            # Χρησιμοποιεί IAM Role αυτόματα (EC2) ή local AWS credentials
+            self.client = boto3.client("s3", region_name=AWS_REGION)
             logger.info(f"S3 Backup enabled → bucket: {AWS_BUCKET}")
         else:
-            logger.warning("S3 Backup disabled — έλεγξε τα AWS keys στο .env")
+            logger.warning("S3 Backup disabled — έλεγξε AWS_S3_BUCKET στο .env")
 
     def backup(self) -> bool:
         """

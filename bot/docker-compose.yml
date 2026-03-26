@@ -9,7 +9,7 @@ services:
       - ../.env   
 
     volumes:
-      - ./database:/app/database 
+      - ./data:/app/data
       - ./logs:/app/logs        
 
     logging:
