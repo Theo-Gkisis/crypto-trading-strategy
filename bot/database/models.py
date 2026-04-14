@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from sqlalchemy import (
     create_engine, Column, Integer, Float,
@@ -8,6 +9,9 @@ from config.settings import DATABASE_URL
 
 import logging
 logger = logging.getLogger(__name__)
+
+# Δημιουργία φακέλου αν δεν υπάρχει
+os.makedirs("data", exist_ok=True)
 
 
 class Base(DeclarativeBase):

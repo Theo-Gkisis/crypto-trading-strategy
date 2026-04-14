@@ -37,6 +37,7 @@ TOTAL_CAPITAL=${total_capital}
 ENVFILE
 
 chmod 600 .env
+chown ec2-user:ec2-user .env
 
 # Create docker-compose.yml
 cat > docker-compose.yml << 'COMPOSEFILE'
@@ -56,6 +57,9 @@ services:
         max-size: "10m"
         max-file: "3"
 COMPOSEFILE
+
+# Fix ownership
+chown -R ec2-user:ec2-user /home/ec2-user/AI-TRADING-BOT
 
 # Pull & Start bot
 docker compose pull

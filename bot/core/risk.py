@@ -60,8 +60,8 @@ class RiskManager:
 
     def _check_min_amount(self, amount: float) -> tuple[bool, str]:
         """Ελάχιστο ποσό trade στη Binance = $10."""
-        if amount < 10:
-            return False, f"Ποσό ${amount} κάτω από το ελάχιστο ($10)"
+        if amount < 5:
+            return False, f"Ποσό ${amount} κάτω από το ελάχιστο ($5)"
         return True, ""
 
     def _check_max_amount(self, amount: float) -> tuple[bool, str]:

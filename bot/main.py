@@ -104,7 +104,7 @@ class TradingBot:
         self.logger.info(f"{'='*50}")
         self.logger.info(f"Νέος κύκλος — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
 
-        balance = self.exchange.get_balance("USDT")
+        balance = self.exchange.get_balance("USD")
         capital = min(balance, TOTAL_CAPITAL)
 
         if capital < 5:
@@ -247,9 +247,9 @@ class TradingBot:
         self.db.save_daily_summary()
 
         self.logger.info(
-            f"Daily Summary | Trades: {stats['total_trades']} | "
-            f"PnL: ${stats['daily_pnl']:.3f} | "
-            f"Win Rate: {stats['win_rate']}%"
+            f"Daily Summary | Trades: {stats.get('total_trades', 0)} | "
+            f"PnL: ${stats.get('daily_pnl', stats.get('total_pnl', 0)):.3f} | "
+            f"Win Rate: {stats.get('win_rate', 0)}%"
         )
 
 
@@ -287,4 +287,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print("Starting AI Trading Bot...")
     main()

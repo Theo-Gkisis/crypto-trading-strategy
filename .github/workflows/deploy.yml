@@ -75,8 +75,12 @@ jobs:
           host:     ${{ secrets.EC2_HOST }}
           username: ec2-user
           key:      ${{ secrets.EC2_SSH_KEY }}
+          envs: TRADING_MODE
           script: |
             cd ~/AI-TRADING-BOT
+            if [ -n "$TRADING_MODE" ]; then
+              sed -i "s/TRADING_MODE=.*/TRADING_MODE=$TRADING_MODE/" .env
+            fi
             docker compose pull
             docker compose up -d
             docker compose ps

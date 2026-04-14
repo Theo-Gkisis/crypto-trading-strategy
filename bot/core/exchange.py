@@ -19,9 +19,11 @@ class Exchange:
         self.client = ccxt.binance({
             "apiKey": BINANCE_API_KEY,
             "secret": BINANCE_API_SECRET,
-            "enableRateLimit": True,   # Σέβεται τα limits της Binance
+            "enableRateLimit": True,
             "options": {
-                "defaultType": "spot",  # Spot trading (όχι futures)
+                "defaultType": "spot",
+                "fetchCurrencies": False,
+                "adjustForTimeDifference": True,
             }
         })
 
@@ -41,7 +43,29 @@ class Exchange:
     def _load_markets(self):
         """Φορτώνει τα διαθέσιμα pairs από τη Binance."""
         try:
+            # Αποθήκευσε originals και patch μόνο για load_markets
+            patched = {}
+            empty = lambda *args, **kw: []
+            empty_info = lambda *args, **kw: {"symbols": []}
+            for attr in dir(self.client):
+                if "margin" in attr.lower() or "fapi" in attr.lower() or "dapi" in attr.lower():
+                    try:
+                        patched[attr] = getattr(self.client, attr)
+                        setattr(self.client, attr, empty)
+                    except Exception:
+                        pass
+            self.client.fapiPublicGetExchangeInfo = empty_info
+            self.client.dapiPublicGetExchangeInfo = empty_info
+
             self.client.load_markets()
+
+            # Επαναφορά original methods
+            for attr, original in patched.items():
+                try:
+                    setattr(self.client, attr, original)
+                except Exception:
+                    pass
+
             logger.info("✅ Σύνδεση με Binance επιτυχής")
         except Exception as e:
             logger.error(f"❌ Αποτυχία σύνδεσης με Binance: {e}")
@@ -51,15 +75,20 @@ class Exchange:
     # ΥΠΟΛΟΙΠΟ
     # ----------------------------------------------------------
 
-    def get_balance(self, currency: str = "USDT") -> float:
+    def get_balance(self, currency: str = "USD") -> float:
         """
         Επιστρέφει το διαθέσιμο υπόλοιπο σε USDT (ή άλλο νόμισμα).
 
         Παράδειγμα: get_balance("USDT") → 95.50
         """
         try:
-            balance = self.client.fetch_balance()
-            available = balance["free"].get(currency, 0.0)
+            from binance.client import Client as BinanceClient
+            from config.settings import BINANCE_API_KEY, BINANCE_API_SECRET
+            bc = BinanceClient(BINANCE_API_KEY, BINANCE_API_SECRET)
+            account = bc.get_account()
+            balances = {b["asset"]: float(b["free"]) for b in account["balances"]}
+            # USDC εμφανίζεται ως "USD" στο API
+            available = balances.get(currency, 0.0) or balances.get("USDC", 0.0)
             logger.debug(f"Υπόλοιπο {currency}: {available}")
             return float(available)
         except Exception as e:
@@ -69,11 +98,12 @@ class Exchange:
     def get_all_balances(self) -> dict:
         """Επιστρέφει όλα τα υπόλοιπα (μόνο αυτά > 0)."""
         try:
-            balance = self.client.fetch_balance()
+            response = self.client.privateGetAccount()
+            balance = {"free": {b["asset"]: float(b["free"]) for b in response["balances"]}}
             return {
                 currency: amount
                 for currency, amount in balance["free"].items()
-                if float(amount) > 0
+                if amount > 0
             }
         except Exception as e:
             logger.error(f"❌ Σφάλμα ανάκτησης υπολοίπων: {e}")
