@@ -6,6 +6,7 @@ AI Trading Bot — Main Entry Point
   py -X utf8 main.py --stats  → Εμφάνιση στατιστικών
   py -X utf8 main.py --stop   → Graceful stop
 """
+import os
 import sys
 import time
 import signal
@@ -47,6 +48,7 @@ def setup_logging():
         }
     ))
 
+    os.makedirs("logs", exist_ok=True)
     file_handler = logging.FileHandler("logs/bot.log", encoding="utf-8")
     file_handler.setFormatter(logging.Formatter(
         "%(asctime)s [%(levelname)s] %(name)s: %(message)s"

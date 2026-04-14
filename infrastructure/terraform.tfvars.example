@@ -1,0 +1,56 @@
+# =============================================================================
+# terraform.tfvars.example
+#
+# INSTRUCTIONS:
+#   1. Copy this file: cp terraform.tfvars.example terraform.tfvars
+#   2. Fill in your values in terraform.tfvars
+#   3. NEVER commit terraform.tfvars to git (it contains secrets!)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# GENERAL
+# -----------------------------------------------------------------------------
+project_name = "trading-bot"
+environment  = "production"   # or "staging"
+aws_region   = "eu-central-1" # Frankfurt
+
+# -----------------------------------------------------------------------------
+# EC2 ACCESS
+# -----------------------------------------------------------------------------
+
+# Contents of your ~/.ssh/id_rsa.pub
+# Find it by running: cat ~/.ssh/id_rsa.pub
+ssh_public_key = "ssh-rsa AAAA...your_public_key_here... user@machine"
+
+# Your public IP in CIDR notation
+# Find it by running: curl ifconfig.me
+your_ip = "203.0.113.5/32"
+
+# -----------------------------------------------------------------------------
+# GITHUB
+# -----------------------------------------------------------------------------
+github_repo_url = "https://github.com/TheodoreGisis/AI-TRADING-BOT.git"
+github_branch   = "main"
+
+# -----------------------------------------------------------------------------
+# S3 BACKUP
+# -----------------------------------------------------------------------------
+s3_bucket_name           = "your-unique-bucket-name-here"
+s3_backup_retention_days = 30
+
+# -----------------------------------------------------------------------------
+# BOT SETTINGS
+# -----------------------------------------------------------------------------
+trading_mode  = "testnet" # Start with testnet! Switch to "live" after testing.
+total_capital = 100
+
+# -----------------------------------------------------------------------------
+# SECRETS (NEVER commit these to git!)
+# -----------------------------------------------------------------------------
+binance_api_key            = "your_binance_api_key"
+binance_api_secret         = "your_binance_api_secret"
+binance_api_key_testnet    = "your_binance_testnet_api_key"
+binance_api_secret_testnet = "your_binance_testnet_api_secret"
+
+telegram_bot_token = "your_telegram_bot_token"
+telegram_chat_id   = "your_telegram_chat_id"
